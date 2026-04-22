@@ -153,21 +153,69 @@
                 <div class="relative group">
                     <button class="w-10 h-10 rounded-full bg-light flex items-center justify-center btn-transition hover:bg-primary/10">
                         <i class="fa fa-bell-o text-info group-hover:text-primary transition-colors"></i>
-                        <span id="alert-badge" class="absolute top-0 right-0 w-4 h-4 rounded-full bg-gradient-danger text-white text-xs flex items-center justify-center hidden animate-pulse-slow">0</span>
+                        <span id="alert-badge" class="absolute top-0 right-0 w-4 h-4 rounded-full bg-gradient-danger text-white text-xs flex items-center justify-center animate-pulse-slow">3</span>
                     </button>
                     <!-- 告警提示框 -->
-                    <div class="absolute right-0 mt-2 w-64 bg-card rounded-lg card-shadow p-3 hidden group-hover:block animate-fade-in z-10">
+                    <div class="absolute right-0 mt-2 w-72 bg-card rounded-lg card-shadow p-3 hidden group-hover:block animate-fade-in z-10">
                         <p class="text-sm font-medium mb-2">最新告警</p>
-                        <div class="text-xs text-info mb-3">暂无新告警</div>
-                        <button class="w-full py-1.5 text-xs text-primary bg-primary/5 rounded-lg hover:bg-primary/10 btn-transition">
+                        <div class="text-xs space-y-2 mb-3">
+                            <div class="flex items-start gap-2 p-1.5 rounded bg-light">
+                                <span class="px-1 py-0.5 bg-danger/10 text-danger rounded text-xs flex-shrink-0">L3</span>
+                                <span class="text-info leading-4">局部放电量超标，建议立即检修</span>
+                            </div>
+                            <div class="flex items-start gap-2 p-1.5 rounded bg-light">
+                                <span class="px-1 py-0.5 bg-primary/10 text-primary rounded text-xs flex-shrink-0">L2</span>
+                                <span class="text-info leading-4">绕组温度异常升高，接近预警阈值</span>
+                            </div>
+                            <div class="flex items-start gap-2 p-1.5 rounded bg-light">
+                                <span class="px-1 py-0.5 bg-primary/10 text-primary rounded text-xs flex-shrink-0">L2</span>
+                                <span class="text-info leading-4">壳体振动加速度异常升高</span>
+                            </div>
+                        </div>
+                        <button onclick="openAllAlertsModal()" class="w-full py-1.5 text-xs text-primary bg-primary/5 rounded-lg hover:bg-primary/10 btn-transition">
                             查看全部告警
                         </button>
                     </div>
                 </div>
-                <div class="flex items-center space-x-2 group cursor-pointer">
-                    <img src="https://picsum.photos/id/1005/40/40" alt="用户头像" class="w-8 h-8 rounded-full object-cover border-2 border-transparent group-hover:border-primary btn-transition">
-                    <span class="text-sm hidden sm:block font-medium">运维管理员</span>
-                    <i class="fa fa-angle-down text-xs text-info group-hover:text-primary transition-colors"></i>
+                <div class="relative" id="admin-wrapper">
+                    <div class="flex items-center space-x-2 group cursor-pointer" id="admin-trigger" onclick="toggleAdminCard()">
+                        <img src="https://picsum.photos/id/1005/40/40" alt="用户头像" class="w-8 h-8 rounded-full object-cover border-2 border-transparent group-hover:border-primary btn-transition">
+                        <span class="text-sm hidden sm:block font-medium">运维管理员</span>
+                        <i class="fa fa-angle-down text-xs text-info group-hover:text-primary transition-colors" id="admin-arrow"></i>
+                    </div>
+                    <!-- 管理员账号卡片 -->
+                    <div id="admin-card" class="absolute right-0 mt-2 w-72 bg-card rounded-xl card-shadow p-5 hidden animate-fade-in z-50 border border-border">
+                        <div class="flex items-center space-x-3 mb-4 pb-4 border-b border-border">
+                            <img src="https://picsum.photos/id/1005/80/80" alt="用户头像" class="w-12 h-12 rounded-full object-cover border-2 border-primary">
+                            <div>
+                                <p class="text-sm font-bold text-dark">运维管理员</p>
+                                <p class="text-xs text-info mt-0.5">超级管理员</p>
+                            </div>
+                        </div>
+                        <div class="space-y-3 mb-4">
+                            <div class="flex items-center text-sm">
+                                <i class="fa fa-envelope-o text-info w-5"></i>
+                                <span class="text-info mr-2">账号:</span>
+                                <span class="font-medium text-dark">admin@intelligence.com</span>
+                            </div>
+                            <div class="flex items-center text-sm">
+                                <i class="fa fa-shield text-info w-5"></i>
+                                <span class="text-info mr-2">角色:</span>
+                                <span class="font-medium text-primary">超级管理员</span>
+                            </div>
+                        </div>
+                        <div class="flex gap-2 pt-3 border-t border-border">
+                            <button onclick="openModal('password-modal')" class="flex-1 py-2 text-xs font-medium bg-primary/10 text-primary rounded-lg hover:bg-primary/20 btn-transition">
+                                <i class="fa fa-lock mr-1"></i> 修改密码
+                            </button>
+                            <button onclick="openModal('log-modal')" class="flex-1 py-2 text-xs font-medium bg-primary/10 text-primary rounded-lg hover:bg-primary/20 btn-transition">
+                                <i class="fa fa-list-alt mr-1"></i> 操作日志
+                            </button>
+                            <button onclick="openModal('logout-modal')" class="flex-1 py-2 text-xs font-medium bg-danger/10 text-danger rounded-lg hover:bg-danger/20 btn-transition">
+                                <i class="fa fa-sign-out mr-1"></i> 退出
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -272,13 +320,15 @@
                 
                 <!-- 诊断详情 -->
                 <div class="w-full grid grid-cols-2 gap-4 mb-6">
-                    <div class="bg-light rounded-lg p-4 text-center border border-border hover:border-primary/20 btn-transition">
+                    <div class="bg-light rounded-lg p-4 text-center border border-border hover:border-primary/30 btn-transition cursor-pointer" onclick="openModal('confidence-modal')">
                         <p class="text-xs text-info mb-2">诊断置信度</p>
                         <p class="text-xl font-bold text-gradient-primary" id="confidence-value">98.5%</p>
+                        <p class="text-xs text-primary/60 mt-1"><i class="fa fa-info-circle mr-0.5"></i>点击查看依据</p>
                     </div>
-                    <div class="bg-light rounded-lg p-4 text-center border border-border hover:border-primary/20 btn-transition">
+                    <div class="bg-light rounded-lg p-4 text-center border border-border hover:border-primary/30 btn-transition cursor-pointer" onclick="openModal('severity-modal')">
                         <p class="text-xs text-info mb-2">故障严重度</p>
                         <p class="text-xl font-bold text-gradient-primary" id="severity-value">0.12</p>
+                        <p class="text-xs text-primary/60 mt-1"><i class="fa fa-info-circle mr-0.5"></i>点击查看规则</p>
                     </div>
                     <div class="bg-light rounded-lg p-4 text-center border border-border hover:border-primary/20 btn-transition">
                         <p class="text-xs text-info mb-2">数据同步误差</p>
@@ -305,13 +355,13 @@
                         <p class="text-xs text-info">实时监测 · 500Hz采样率 · 边缘预处理</p>
                     </div>
                     <div class="flex space-x-2 mt-3 md:mt-0">
-                        <button class="px-3 py-1.5 text-xs bg-primary text-white rounded-md btn-transition active">
+                        <button class="time-range-tab px-3 py-1.5 text-xs bg-primary text-white rounded-md btn-transition" onclick="switchMainTimeRange(this,'realtime')">
                             实时
                         </button>
-                        <button class="px-3 py-1.5 text-xs bg-light text-info rounded-md btn-transition hover:bg-gray-200">
+                        <button class="time-range-tab px-3 py-1.5 text-xs bg-light text-info rounded-md btn-transition hover:bg-gray-200" onclick="switchMainTimeRange(this,'1h')">
                             1小时
                         </button>
-                        <button class="px-3 py-1.5 text-xs bg-light text-info rounded-md btn-transition hover:bg-gray-200">
+                        <button class="time-range-tab px-3 py-1.5 text-xs bg-light text-info rounded-md btn-transition hover:bg-gray-200" onclick="switchMainTimeRange(this,'24h')">
                             24小时
                         </button>
                     </div>
@@ -349,7 +399,7 @@
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-lg font-bold text-dark">多物理场详细数据</h2>
                     <div class="relative">
-                        <input type="text" placeholder="搜索监测指标..." class="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary btn-transition">
+                        <input type="text" id="physics-search" placeholder="搜索监测指标..." oninput="searchPhysicsData(this.value)" class="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary btn-transition">
                         <i class="fa fa-search absolute right-3 top-3 text-info"></i>
                     </div>
                 </div>
@@ -368,9 +418,9 @@
                         </thead>
                         <tbody>
                             <!-- 电气量 -->
-                            <tr class="border-b border-border hover:bg-light/50 btn-transition">
+                            <tr class="border-b border-border hover:bg-primary/5 btn-transition cursor-pointer physics-row" data-type="电气量" data-indicator="三相电流有效值" data-value="12.8" data-unit="A" data-range="10-15" onclick="openDetailPanel(this)">
                                 <td class="py-4 px-4 text-sm font-medium" rowspan="3">电气量</td>
-                                <td class="py-4 px-4 text-sm">三相电流有效值</td>
+                                <td class="py-4 px-4 text-sm"><i class="fa fa-line-chart text-primary/40 mr-1.5 text-xs"></i>三相电流有效值</td>
                                 <td class="py-4 px-4 text-sm font-bold text-dark">12.8</td>
                                 <td class="py-4 px-4 text-sm">A</td>
                                 <td class="py-4 px-4 text-sm">10-15</td>
@@ -381,8 +431,8 @@
                                     </span>
                                 </td>
                             </tr>
-                            <tr class="border-b border-border hover:bg-light/50 btn-transition">
-                                <td class="py-4 px-4 text-sm">电压不平衡度</td>
+                            <tr class="border-b border-border hover:bg-primary/5 btn-transition cursor-pointer physics-row" data-type="电气量" data-indicator="电压不平衡度" data-value="0.012" data-unit="%" data-range="0-0.05" onclick="openDetailPanel(this)">
+                                <td class="py-4 px-4 text-sm"><i class="fa fa-line-chart text-primary/40 mr-1.5 text-xs"></i>电压不平衡度</td>
                                 <td class="py-4 px-4 text-sm font-bold text-dark">0.012</td>
                                 <td class="py-4 px-4 text-sm">%</td>
                                 <td class="py-4 px-4 text-sm">0-0.05</td>
@@ -393,8 +443,8 @@
                                     </span>
                                 </td>
                             </tr>
-                            <tr class="border-b border-border hover:bg-light/50 btn-transition">
-                                <td class="py-4 px-4 text-sm">谐波含量(THD)</td>
+                            <tr class="border-b border-border hover:bg-primary/5 btn-transition cursor-pointer physics-row" data-type="电气量" data-indicator="谐波含量(THD)" data-value="3.2" data-unit="%" data-range="0-5" onclick="openDetailPanel(this)">
+                                <td class="py-4 px-4 text-sm"><i class="fa fa-line-chart text-primary/40 mr-1.5 text-xs"></i>谐波含量(THD)</td>
                                 <td class="py-4 px-4 text-sm font-bold text-dark">3.2</td>
                                 <td class="py-4 px-4 text-sm">%</td>
                                 <td class="py-4 px-4 text-sm">0-5</td>
@@ -407,9 +457,9 @@
                             </tr>
                             
                             <!-- 振动信号 -->
-                            <tr class="border-b border-border hover:bg-light/50 btn-transition">
+                            <tr class="border-b border-border hover:bg-primary/5 btn-transition cursor-pointer physics-row" data-type="振动信号" data-indicator="壳体加速度" data-value="1.8" data-unit="m/s²" data-range="0-5" onclick="openDetailPanel(this)">
                                 <td class="py-4 px-4 text-sm font-medium" rowspan="2">振动信号</td>
-                                <td class="py-4 px-4 text-sm">壳体加速度</td>
+                                <td class="py-4 px-4 text-sm"><i class="fa fa-line-chart text-primary/40 mr-1.5 text-xs"></i>壳体加速度</td>
                                 <td class="py-4 px-4 text-sm font-bold text-dark">1.8</td>
                                 <td class="py-4 px-4 text-sm">m/s²</td>
                                 <td class="py-4 px-4 text-sm">0-5</td>
@@ -420,8 +470,8 @@
                                     </span>
                                 </td>
                             </tr>
-                            <tr class="border-b border-border hover:bg-light/50 btn-transition">
-                                <td class="py-4 px-4 text-sm">特征频率</td>
+                            <tr class="border-b border-border hover:bg-primary/5 btn-transition cursor-pointer physics-row" data-type="振动信号" data-indicator="特征频率" data-value="100" data-unit="Hz" data-range="95-105" onclick="openDetailPanel(this)">
+                                <td class="py-4 px-4 text-sm"><i class="fa fa-line-chart text-primary/40 mr-1.5 text-xs"></i>特征频率</td>
                                 <td class="py-4 px-4 text-sm font-bold text-dark">100</td>
                                 <td class="py-4 px-4 text-sm">Hz</td>
                                 <td class="py-4 px-4 text-sm">95-105</td>
@@ -434,9 +484,9 @@
                             </tr>
                             
                             <!-- 温度场 -->
-                            <tr class="border-b border-border hover:bg-light/50 btn-transition">
+                            <tr class="border-b border-border hover:bg-primary/5 btn-transition cursor-pointer physics-row" data-type="温度场" data-indicator="绕组温度" data-value="58.6" data-unit="℃" data-range="40-80" onclick="openDetailPanel(this)">
                                 <td class="py-4 px-4 text-sm font-medium" rowspan="2">温度场</td>
-                                <td class="py-4 px-4 text-sm">绕组温度</td>
+                                <td class="py-4 px-4 text-sm"><i class="fa fa-line-chart text-primary/40 mr-1.5 text-xs"></i>绕组温度</td>
                                 <td class="py-4 px-4 text-sm font-bold text-dark">58.6</td>
                                 <td class="py-4 px-4 text-sm">℃</td>
                                 <td class="py-4 px-4 text-sm">40-80</td>
@@ -447,8 +497,8 @@
                                     </span>
                                 </td>
                             </tr>
-                            <tr class="border-b border-border hover:bg-light/50 btn-transition">
-                                <td class="py-4 px-4 text-sm">温升速率</td>
+                            <tr class="border-b border-border hover:bg-primary/5 btn-transition cursor-pointer physics-row" data-type="温度场" data-indicator="温升速率" data-value="0.3" data-unit="℃/min" data-range="0-1" onclick="openDetailPanel(this)">
+                                <td class="py-4 px-4 text-sm"><i class="fa fa-line-chart text-primary/40 mr-1.5 text-xs"></i>温升速率</td>
                                 <td class="py-4 px-4 text-sm font-bold text-dark">0.3</td>
                                 <td class="py-4 px-4 text-sm">℃/min</td>
                                 <td class="py-4 px-4 text-sm">0-1</td>
@@ -461,9 +511,9 @@
                             </tr>
                             
                             <!-- 局部放电 -->
-                            <tr class="border-b border-border hover:bg-light/50 btn-transition">
+                            <tr class="border-b border-border hover:bg-primary/5 btn-transition cursor-pointer physics-row" data-type="局部放电" data-indicator="视在放电量" data-value="28" data-unit="pC" data-range="0-50" onclick="openDetailPanel(this)">
                                 <td class="py-4 px-4 text-sm font-medium" rowspan="2">局部放电</td>
-                                <td class="py-4 px-4 text-sm">视在放电量</td>
+                                <td class="py-4 px-4 text-sm"><i class="fa fa-line-chart text-primary/40 mr-1.5 text-xs"></i>视在放电量</td>
                                 <td class="py-4 px-4 text-sm font-bold text-dark">28</td>
                                 <td class="py-4 px-4 text-sm">pC</td>
                                 <td class="py-4 px-4 text-sm">0-50</td>
@@ -474,8 +524,8 @@
                                     </span>
                                 </td>
                             </tr>
-                            <tr class="border-b border-border hover:bg-light/50 btn-transition">
-                                <td class="py-4 px-4 text-sm">放电频次</td>
+                            <tr class="border-b border-border hover:bg-primary/5 btn-transition cursor-pointer physics-row" data-type="局部放电" data-indicator="放电频次" data-value="3" data-unit="次/分钟" data-range="0-10" onclick="openDetailPanel(this)">
+                                <td class="py-4 px-4 text-sm"><i class="fa fa-line-chart text-primary/40 mr-1.5 text-xs"></i>放电频次</td>
                                 <td class="py-4 px-4 text-sm font-bold text-dark">3</td>
                                 <td class="py-4 px-4 text-sm">次/分钟</td>
                                 <td class="py-4 px-4 text-sm">0-10</td>
@@ -488,9 +538,9 @@
                             </tr>
                             
                             <!-- 声纹信号 -->
-                            <tr class="hover:bg-light/50 btn-transition">
+                            <tr class="hover:bg-primary/5 btn-transition cursor-pointer physics-row" data-type="声纹信号" data-indicator="声压级" data-value="58.2" data-unit="dB" data-range="50-70" onclick="openDetailPanel(this)">
                                 <td class="py-4 px-4 text-sm font-medium">声纹信号</td>
-                                <td class="py-4 px-4 text-sm">声压级</td>
+                                <td class="py-4 px-4 text-sm"><i class="fa fa-line-chart text-primary/40 mr-1.5 text-xs"></i>声压级</td>
                                 <td class="py-4 px-4 text-sm font-bold text-dark">58.2</td>
                                 <td class="py-4 px-4 text-sm">dB</td>
                                 <td class="py-4 px-4 text-sm">50-70</td>
@@ -510,66 +560,22 @@
             <div class="bg-card rounded-xl card-shadow p-5 lg:col-span-1 animate-fade-in">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-lg font-bold text-dark">告警历史</h2>
-                    <span class="text-xs px-2 py-1 bg-danger/10 text-danger rounded-full">
+                    <span id="alert-unprocessed-count" class="text-xs px-2 py-1 bg-danger/10 text-danger rounded-full">
                         <i class="fa fa-exclamation-triangle mr-1"></i> 0 未处理
                     </span>
                 </div>
                 
                 <div class="relative mb-5">
-                    <input type="text" placeholder="搜索告警..." class="w-full px-4 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary btn-transition">
+                    <input type="text" id="alert-search" placeholder="搜索告警..." oninput="searchAlerts(this.value)" class="w-full px-4 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary btn-transition">
                     <i class="fa fa-search absolute right-4 top-3 text-info"></i>
                 </div>
                 
                 <div class="h-[420px] overflow-y-auto scrollbar-hide pr-2">
-                    <div class="space-y-4">
-                        <!-- 无告警状态 -->
-                        <div class="text-center py-12 bg-light/50 rounded-xl border border-border animate-fade-in">
-                            <div class="w-16 h-16 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-4">
-                                <i class="fa fa-bell-slash text-success text-3xl"></i>
-                            </div>
-                            <p class="text-info font-medium mb-2">暂无告警记录</p>
-                            <p class="text-xs text-info">设备运行状态良好，未检测到异常</p>
-                        </div>
-                        
-                        <!-- 告警示例（默认隐藏） -->
-                        <div class="alert-item hidden bg-light/50 rounded-xl p-4 border border-warning/20 hover:shadow-md btn-transition animate-fade-in">
-                            <div class="flex justify-between items-start mb-3">
-                                <span class="text-xs font-medium px-2 py-1 bg-gradient-warning text-white rounded-full">L2 预警</span>
-                                <span class="text-xs text-info">2024-01-01 14:25:18</span>
-                            </div>
-                            <h3 class="text-sm font-bold mb-2">绕组温度异常升高</h3>
-                            <div class="text-xs text-info space-y-1">
-                                <p>当前值：78.5℃ | 阈值：40-80℃</p>
-                                <p>置信度：92.3% | 严重度：0.68</p>
-                                <p class="text-primary font-medium mt-2 cursor-pointer">
-                                    <i class="fa fa-chevron-right mr-1"></i> 查看详情
-                                </p>
-                            </div>
-                        </div>
-                        
-                        <div class="alert-item hidden bg-light/50 rounded-xl p-4 border border-danger/20 hover:shadow-md btn-transition animate-fade-in">
-                            <div class="flex justify-between items-start mb-3">
-                                <span class="text-xs font-medium px-2 py-1 bg-gradient-danger text-white rounded-full">L3 紧急告警</span>
-                                <span class="text-xs text-info">2023-12-28 09:12:45</span>
-                            </div>
-                            <h3 class="text-sm font-bold mb-2">局部放电量超标</h3>
-                            <div class="text-xs text-info space-y-1">
-                                <p>当前值：128pC | 阈值：0-50pC</p>
-                                <p>置信度：96.7% | 严重度：0.85</p>
-                                <div class="flex space-x-2 mt-2">
-                                    <button class="text-xs px-2 py-1 bg-danger/10 text-danger rounded-md hover:bg-danger/20 btn-transition">
-                                        <i class="fa fa-bell mr-1"></i> 已处理
-                                    </button>
-                                    <p class="text-primary font-medium cursor-pointer">
-                                        <i class="fa fa-chevron-right mr-1"></i> 查看详情
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
+                    <div id="alert-list" class="space-y-4">
                     </div>
                 </div>
                 
-                <button class="w-full mt-5 py-2.5 text-sm bg-light text-dark rounded-lg btn-transition hover:bg-gray-200">
+                <button onclick="openAllAlertsModal()" class="w-full mt-5 py-2.5 text-sm bg-light text-dark rounded-lg btn-transition hover:bg-gray-200">
                     <i class="fa fa-history mr-2"></i> 查看全部告警
                 </button>
             </div>
@@ -593,6 +599,376 @@
             </div>
         </div>
     </footer>
+
+    <!-- 修改密码弹窗 -->
+    <div id="password-modal" class="fixed inset-0 bg-dark/50 backdrop-blur-sm z-[100] hidden items-center justify-center" onclick="if(event.target===this)closeModal('password-modal')">
+        <div class="bg-card rounded-xl card-shadow w-full max-w-md mx-4 animate-fade-in">
+            <div class="flex justify-between items-center p-5 border-b border-border">
+                <h3 class="text-lg font-bold text-dark"><i class="fa fa-lock mr-2 text-primary"></i>修改密码</h3>
+                <button onclick="closeModal('password-modal')" class="w-8 h-8 rounded-full bg-light flex items-center justify-center hover:bg-gray-200 btn-transition">
+                    <i class="fa fa-times text-info"></i>
+                </button>
+            </div>
+            <div class="p-5 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-dark mb-1.5">当前密码</label>
+                    <input type="password" placeholder="请输入当前密码" class="w-full px-4 py-2.5 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary btn-transition">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-dark mb-1.5">新密码</label>
+                    <input type="password" placeholder="请输入新密码" class="w-full px-4 py-2.5 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary btn-transition">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-dark mb-1.5">确认新密码</label>
+                    <input type="password" placeholder="请再次输入新密码" class="w-full px-4 py-2.5 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary btn-transition">
+                </div>
+            </div>
+            <div class="flex gap-3 p-5 border-t border-border">
+                <button onclick="closeModal('password-modal')" class="flex-1 py-2.5 text-sm font-medium bg-light text-dark rounded-lg hover:bg-gray-200 btn-transition">取消</button>
+                <button onclick="alert('密码修改成功');closeModal('password-modal')" class="flex-1 py-2.5 text-sm font-medium bg-gradient-primary text-white rounded-lg shadow-btn hover:shadow-btn-hover hover:brightness-105 btn-transition">确认修改</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 操作日志弹窗 -->
+    <div id="log-modal" class="fixed inset-0 bg-dark/50 backdrop-blur-sm z-[100] hidden items-center justify-center" onclick="if(event.target===this)closeModal('log-modal')">
+        <div class="bg-card rounded-xl card-shadow w-full max-w-lg mx-4 animate-fade-in">
+            <div class="flex justify-between items-center p-5 border-b border-border">
+                <h3 class="text-lg font-bold text-dark"><i class="fa fa-list-alt mr-2 text-primary"></i>操作日志</h3>
+                <button onclick="closeModal('log-modal')" class="w-8 h-8 rounded-full bg-light flex items-center justify-center hover:bg-gray-200 btn-transition">
+                    <i class="fa fa-times text-info"></i>
+                </button>
+            </div>
+            <div class="p-5">
+                <div class="h-[360px] overflow-y-auto scrollbar-hide space-y-3">
+                    <div class="flex items-start space-x-3 p-3 bg-light rounded-lg border border-border">
+                        <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <i class="fa fa-eye text-primary text-xs"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-dark">admin@intelligence.com 查看了告警详情</p>
+                            <p class="text-xs text-info mt-1">告警: 绕组温度异常升高 (L2 预警)</p>
+                            <p class="text-xs text-info mt-0.5"><i class="fa fa-clock-o mr-1"></i>2026-04-22 15:28:30</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-3 p-3 bg-light rounded-lg border border-border">
+                        <div class="w-8 h-8 rounded-full bg-success/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <i class="fa fa-check text-success text-xs"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-dark">admin@intelligence.com 处理了告警</p>
+                            <p class="text-xs text-info mt-1">告警: 局部放电量超标 (L3 紧急告警)</p>
+                            <p class="text-xs text-info mt-0.5"><i class="fa fa-clock-o mr-1"></i>2026-04-21 10:05:12</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-3 p-3 bg-light rounded-lg border border-border">
+                        <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <i class="fa fa-eye text-primary text-xs"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-dark">admin@intelligence.com 查看了告警详情</p>
+                            <p class="text-xs text-info mt-1">告警: 局部放电量超标 (L3 紧急告警)</p>
+                            <p class="text-xs text-info mt-0.5"><i class="fa fa-clock-o mr-1"></i>2026-04-21 09:15:33</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-3 p-3 bg-light rounded-lg border border-border">
+                        <div class="w-8 h-8 rounded-full bg-warning/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <i class="fa fa-download text-warning text-xs"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-dark">admin@intelligence.com 导出了诊断报告</p>
+                            <p class="text-xs text-info mt-1">设备: TRANSFORMER_001 周度报告</p>
+                            <p class="text-xs text-info mt-0.5"><i class="fa fa-clock-o mr-1"></i>2026-04-20 16:42:08</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-3 p-3 bg-light rounded-lg border border-border">
+                        <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <i class="fa fa-sign-in text-primary text-xs"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-dark">admin@intelligence.com 登录了系统</p>
+                            <p class="text-xs text-info mt-1">IP: 192.168.1.100 | 浏览器: Chrome 120</p>
+                            <p class="text-xs text-info mt-0.5"><i class="fa fa-clock-o mr-1"></i>2026-04-20 08:30:00</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-3 p-3 bg-light rounded-lg border border-border">
+                        <div class="w-8 h-8 rounded-full bg-info/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <i class="fa fa-cog text-info text-xs"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-dark">admin@intelligence.com 修改了告警阈值</p>
+                            <p class="text-xs text-info mt-1">绕组温度上限: 80℃ -> 85℃</p>
+                            <p class="text-xs text-info mt-0.5"><i class="fa fa-clock-o mr-1"></i>2026-04-19 14:20:45</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="p-5 border-t border-border">
+                <button onclick="closeModal('log-modal')" class="w-full py-2.5 text-sm font-medium bg-light text-dark rounded-lg hover:bg-gray-200 btn-transition">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 退出确认弹窗 -->
+    <div id="logout-modal" class="fixed inset-0 bg-dark/50 backdrop-blur-sm z-[100] hidden items-center justify-center" onclick="if(event.target===this)closeModal('logout-modal')">
+        <div class="bg-card rounded-xl card-shadow w-full max-w-sm mx-4 animate-fade-in">
+            <div class="p-6 text-center">
+                <div class="w-16 h-16 rounded-full bg-danger/10 flex items-center justify-center mx-auto mb-4">
+                    <i class="fa fa-sign-out text-danger text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-bold text-dark mb-2">确认退出</h3>
+                <p class="text-sm text-info">确定要退出当前账号吗？退出后需重新登录。</p>
+            </div>
+            <div class="flex gap-3 p-5 border-t border-border">
+                <button onclick="closeModal('logout-modal')" class="flex-1 py-2.5 text-sm font-medium bg-light text-dark rounded-lg hover:bg-gray-200 btn-transition">取消</button>
+                <button onclick="alert('已退出登录');closeModal('logout-modal')" class="flex-1 py-2.5 text-sm font-medium bg-gradient-danger text-white rounded-lg hover:brightness-105 btn-transition">确认退出</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 诊断置信度详情弹窗 -->
+    <div id="confidence-modal" class="fixed inset-0 bg-dark/50 backdrop-blur-sm z-[100] hidden items-center justify-center" onclick="if(event.target===this)closeModal('confidence-modal')">
+        <div class="bg-card rounded-xl card-shadow w-full max-w-md mx-4 animate-fade-in">
+            <div class="flex justify-between items-center p-5 border-b border-border">
+                <h3 class="text-lg font-bold text-dark"><i class="fa fa-check-circle mr-2 text-success"></i>诊断置信度详情</h3>
+                <button onclick="closeModal('confidence-modal')" class="w-8 h-8 rounded-full bg-light flex items-center justify-center hover:bg-gray-200 btn-transition">
+                    <i class="fa fa-times text-info"></i>
+                </button>
+            </div>
+            <div class="p-5 space-y-5">
+                <!-- 当前置信度 -->
+                <div class="text-center py-4 bg-success/5 rounded-xl border border-success/20">
+                    <p class="text-xs text-info mb-1">当前诊断置信度</p>
+                    <p class="text-3xl font-bold text-success" id="confidence-modal-value">98.5%</p>
+                    <p class="text-xs text-info mt-1">模型输出 Softmax 概率</p>
+                </div>
+
+                <!-- 物理场贡献度 -->
+                <div>
+                    <h4 class="text-sm font-bold text-dark mb-3"><i class="fa fa-bar-chart mr-1.5 text-primary"></i>各物理场贡献度</h4>
+                    <div class="space-y-2.5">
+                        <div>
+                            <div class="flex justify-between text-xs mb-1"><span class="text-dark font-medium">电气量</span><span class="text-primary font-bold">35.2%</span></div>
+                            <div class="h-2 bg-light rounded-full overflow-hidden"><div class="h-full bg-gradient-primary rounded-full" style="width:35.2%"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs mb-1"><span class="text-dark font-medium">温度场</span><span class="text-primary font-bold">28.1%</span></div>
+                            <div class="h-2 bg-light rounded-full overflow-hidden"><div class="h-full bg-gradient-to-r from-orange-400 to-orange-500 rounded-full" style="width:28.1%"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs mb-1"><span class="text-dark font-medium">振动信号</span><span class="text-primary font-bold">18.6%</span></div>
+                            <div class="h-2 bg-light rounded-full overflow-hidden"><div class="h-full bg-gradient-success rounded-full" style="width:18.6%"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs mb-1"><span class="text-dark font-medium">局部放电</span><span class="text-primary font-bold">12.4%</span></div>
+                            <div class="h-2 bg-light rounded-full overflow-hidden"><div class="h-full rounded-full" style="width:12.4%;background:linear-gradient(to right,#722ED1,#9254DE)"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs mb-1"><span class="text-dark font-medium">声纹信号</span><span class="text-primary font-bold">5.7%</span></div>
+                            <div class="h-2 bg-light rounded-full overflow-hidden"><div class="h-full bg-gradient-danger rounded-full" style="width:5.7%"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 诊断依据 -->
+                <div class="bg-light rounded-xl p-4 border border-border">
+                    <h4 class="text-sm font-bold text-dark mb-2"><i class="fa fa-lightbulb-o mr-1.5 text-warning"></i>诊断依据</h4>
+                    <ul class="text-xs text-info space-y-1.5 list-disc list-inside">
+                        <li>电气量特征贡献最大（35.2%），三相电流平稳无异常波动</li>
+                        <li>温度场数据在正常阈值区间内，绕组温升速率合理</li>
+                        <li>振动信号频谱特征与健康基线高度吻合</li>
+                        <li>局部放电量低于预警阈值，放电模式正常</li>
+                        <li>多物理场数据交叉验证，综合判定设备运行正常</li>
+                    </ul>
+                </div>
+
+                <!-- 模型信息 -->
+                <div class="flex items-center justify-between text-xs text-info bg-light rounded-lg p-3 border border-border">
+                    <span><i class="fa fa-microchip mr-1 text-primary"></i>诊断模型版本: <span class="font-bold text-dark">v2.3.1</span></span>
+                    <span>并行轻量化神经网络</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 故障严重度详情弹窗 -->
+    <div id="severity-modal" class="fixed inset-0 bg-dark/50 backdrop-blur-sm z-[100] hidden items-center justify-center" onclick="if(event.target===this)closeModal('severity-modal')">
+        <div class="bg-card rounded-xl card-shadow w-full max-w-md mx-4 animate-fade-in">
+            <div class="flex justify-between items-center p-5 border-b border-border">
+                <h3 class="text-lg font-bold text-dark"><i class="fa fa-tachometer mr-2 text-primary"></i>故障严重度详情</h3>
+                <button onclick="closeModal('severity-modal')" class="w-8 h-8 rounded-full bg-light flex items-center justify-center hover:bg-gray-200 btn-transition">
+                    <i class="fa fa-times text-info"></i>
+                </button>
+            </div>
+            <div class="p-5 space-y-5">
+                <!-- 当前严重度 -->
+                <div class="text-center py-4 bg-success/5 rounded-xl border border-success/20">
+                    <p class="text-xs text-info mb-1">当前故障严重度</p>
+                    <p class="text-3xl font-bold text-success" id="severity-modal-value">0.12</p>
+                    <p class="text-xs text-success mt-1"><i class="fa fa-check-circle mr-1"></i>安全范围（&lt; 0.3）</p>
+                </div>
+
+                <!-- 计算规则 -->
+                <div class="bg-light rounded-xl p-4 border border-border">
+                    <h4 class="text-sm font-bold text-dark mb-3"><i class="fa fa-calculator mr-1.5 text-primary"></i>计算规则：阈值偏离加权法</h4>
+                    <div class="text-xs text-info space-y-2">
+                        <p>严重度 S 基于各监测指标相对阈值的偏离程度加权计算：</p>
+                        <div class="bg-card rounded-lg p-3 text-center font-mono text-sm text-dark border border-border">
+                            S = &Sigma; W<sub>i</sub> &times; D<sub>i</sub> / D<sub>max,i</sub>
+                        </div>
+                        <ul class="space-y-1 list-disc list-inside mt-2">
+                            <li><span class="text-dark font-medium">W<sub>i</sub></span> — 第 i 个物理场权重系数</li>
+                            <li><span class="text-dark font-medium">D<sub>i</sub></span> — 当前值与正常范围中心的偏离距离</li>
+                            <li><span class="text-dark font-medium">D<sub>max,i</sub></span> — 最大允许偏离距离（阈值边界）</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 各指标偏离度 -->
+                <div>
+                    <h4 class="text-sm font-bold text-dark mb-3"><i class="fa fa-sliders mr-1.5 text-primary"></i>各指标阈值偏离度</h4>
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-3 text-xs">
+                            <span class="w-24 text-dark font-medium flex-shrink-0">三相电流</span>
+                            <div class="flex-1 h-2 bg-light rounded-full overflow-hidden"><div class="h-full bg-success rounded-full" style="width:12%"></div></div>
+                            <span class="text-info w-10 text-right">12%</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-xs">
+                            <span class="w-24 text-dark font-medium flex-shrink-0">绕组温度</span>
+                            <div class="flex-1 h-2 bg-light rounded-full overflow-hidden"><div class="h-full bg-warning rounded-full" style="width:23%"></div></div>
+                            <span class="text-info w-10 text-right">23%</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-xs">
+                            <span class="w-24 text-dark font-medium flex-shrink-0">壳体振动</span>
+                            <div class="flex-1 h-2 bg-light rounded-full overflow-hidden"><div class="h-full bg-success rounded-full" style="width:8%"></div></div>
+                            <span class="text-info w-10 text-right">8%</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-xs">
+                            <span class="w-24 text-dark font-medium flex-shrink-0">局部放电</span>
+                            <div class="flex-1 h-2 bg-light rounded-full overflow-hidden"><div class="h-full bg-success rounded-full" style="width:15%"></div></div>
+                            <span class="text-info w-10 text-right">15%</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-xs">
+                            <span class="w-24 text-dark font-medium flex-shrink-0">声压级</span>
+                            <div class="flex-1 h-2 bg-light rounded-full overflow-hidden"><div class="h-full bg-success rounded-full" style="width:6%"></div></div>
+                            <span class="text-info w-10 text-right">6%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 严重度等级说明 -->
+                <div>
+                    <h4 class="text-sm font-bold text-dark mb-3"><i class="fa fa-th-list mr-1.5 text-primary"></i>严重度等级划分</h4>
+                    <div class="grid grid-cols-4 gap-2 text-xs text-center">
+                        <div class="bg-success/10 rounded-lg p-2 border border-success/20">
+                            <p class="font-bold text-success mb-0.5">安全</p>
+                            <p class="text-info">0 ~ 0.3</p>
+                        </div>
+                        <div class="bg-warning/10 rounded-lg p-2 border border-warning/20">
+                            <p class="font-bold text-warning mb-0.5">预警</p>
+                            <p class="text-info">0.3 ~ 0.6</p>
+                        </div>
+                        <div class="bg-primary/10 rounded-lg p-2 border border-primary/20">
+                            <p class="font-bold text-primary mb-0.5">告警</p>
+                            <p class="text-info">0.6 ~ 0.8</p>
+                        </div>
+                        <div class="bg-danger/10 rounded-lg p-2 border border-danger/20">
+                            <p class="font-bold text-danger mb-0.5">紧急</p>
+                            <p class="text-info">0.8 ~ 1.0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 全部告警弹窗 -->
+    <div id="all-alerts-modal" class="fixed inset-0 bg-dark/50 backdrop-blur-sm z-[100] hidden items-center justify-center" onclick="if(event.target===this)closeModal('all-alerts-modal')">
+        <div class="bg-card rounded-xl card-shadow w-full max-w-2xl mx-4 animate-fade-in max-h-[85vh] flex flex-col">
+            <div class="flex justify-between items-center p-5 border-b border-border flex-shrink-0">
+                <div class="flex items-center gap-3">
+                    <h3 class="text-lg font-bold text-dark"><i class="fa fa-bell mr-2 text-primary"></i>全部告警记录</h3>
+                    <span id="all-alerts-count" class="text-xs px-2 py-0.5 bg-danger/10 text-danger rounded-full"></span>
+                </div>
+                <button onclick="closeModal('all-alerts-modal')" class="w-8 h-8 rounded-full bg-light flex items-center justify-center hover:bg-gray-200 btn-transition">
+                    <i class="fa fa-times text-info"></i>
+                </button>
+            </div>
+            <!-- 筛选栏 -->
+            <div class="px-5 pt-4 pb-2 border-b border-border flex-shrink-0">
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <div class="relative flex-1">
+                        <input type="text" id="all-alerts-search" placeholder="搜索告警内容..." oninput="filterAllAlerts()" class="w-full px-3 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary btn-transition pl-9">
+                        <i class="fa fa-search absolute left-3 top-2.5 text-info"></i>
+                    </div>
+                    <div class="flex gap-2">
+                        <button class="all-alerts-level-tab px-3 py-1.5 text-xs rounded-lg bg-primary text-white btn-transition" data-level="all" onclick="switchAlertLevel(this)">全部</button>
+                        <button class="all-alerts-level-tab px-3 py-1.5 text-xs rounded-lg bg-light text-info hover:bg-gray-200 btn-transition" data-level="L3" onclick="switchAlertLevel(this)">紧急</button>
+                        <button class="all-alerts-level-tab px-3 py-1.5 text-xs rounded-lg bg-light text-info hover:bg-gray-200 btn-transition" data-level="L2" onclick="switchAlertLevel(this)">告警</button>
+                        <button class="all-alerts-level-tab px-3 py-1.5 text-xs rounded-lg bg-light text-info hover:bg-gray-200 btn-transition" data-level="L1" onclick="switchAlertLevel(this)">预警</button>
+                    </div>
+                </div>
+            </div>
+            <!-- 告警列表 -->
+            <div class="p-5 overflow-y-auto flex-1">
+                <div id="all-alerts-list" class="space-y-3"></div>
+            </div>
+            <div class="p-4 border-t border-border flex-shrink-0">
+                <button onclick="closeModal('all-alerts-modal')" class="w-full py-2.5 text-sm font-medium bg-light text-dark rounded-lg hover:bg-gray-200 btn-transition">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 监测指标详情侧拉面板 -->
+    <div id="detail-panel-overlay" class="fixed inset-0 bg-dark/30 backdrop-blur-sm z-[100] hidden" onclick="closeDetailPanel()"></div>
+    <div id="detail-panel" class="fixed top-0 right-0 h-full w-full max-w-xl bg-card shadow-2xl z-[101] overflow-y-auto" style="transform:translateX(100%);transition:transform .35s cubic-bezier(.4,0,.2,1)">
+        <div class="p-6">
+            <!-- 面板头部 -->
+            <div class="flex justify-between items-start mb-5">
+                <div>
+                    <h3 class="text-lg font-bold text-dark" id="detail-indicator-name"></h3>
+                    <p class="text-sm text-info mt-1"><i class="fa fa-tag mr-1"></i><span id="detail-indicator-type"></span> · 当前值 <span id="detail-current-value" class="font-bold text-primary"></span></p>
+                    <p class="text-xs text-info mt-1">正常范围: <span id="detail-range" class="font-medium text-dark"></span></p>
+                </div>
+                <button onclick="closeDetailPanel()" class="w-9 h-9 rounded-full bg-light flex items-center justify-center hover:bg-gray-200 btn-transition flex-shrink-0">
+                    <i class="fa fa-times text-info text-lg"></i>
+                </button>
+            </div>
+
+            <!-- 时间范围切换 -->
+            <div class="flex gap-2 mb-4">
+                <button class="detail-time-tab px-4 py-1.5 text-xs font-medium rounded-full bg-gradient-primary text-white shadow-btn" data-range="1h" onclick="switchDetailTimeRange('1h')">最近1小时</button>
+                <button class="detail-time-tab px-4 py-1.5 text-xs font-medium rounded-full bg-light text-info hover:bg-gray-200 btn-transition" data-range="24h" onclick="switchDetailTimeRange('24h')">最近24小时</button>
+            </div>
+
+            <!-- 趋势图 -->
+            <div class="h-[260px] rounded-xl bg-light p-3 mb-6 border border-border">
+                <canvas id="detail-chart"></canvas>
+            </div>
+
+            <!-- 统计值 -->
+            <h4 class="text-sm font-bold text-dark mb-3"><i class="fa fa-bar-chart mr-2 text-primary"></i>统计值</h4>
+            <div class="grid grid-cols-3 gap-3 mb-6">
+                <div class="bg-light rounded-xl p-4 text-center border border-border">
+                    <p class="text-xs text-info mb-1.5">最大值</p>
+                    <p class="text-base font-bold text-danger" id="stat-max">--</p>
+                </div>
+                <div class="bg-light rounded-xl p-4 text-center border border-border">
+                    <p class="text-xs text-info mb-1.5">最小值</p>
+                    <p class="text-base font-bold text-primary" id="stat-min">--</p>
+                </div>
+                <div class="bg-light rounded-xl p-4 text-center border border-border">
+                    <p class="text-xs text-info mb-1.5">平均值</p>
+                    <p class="text-base font-bold text-dark" id="stat-avg">--</p>
+                </div>
+            </div>
+
+            <!-- 关联告警事件 -->
+            <h4 class="text-sm font-bold text-dark mb-3"><i class="fa fa-exclamation-triangle mr-2 text-warning"></i>关联告警事件</h4>
+            <div id="detail-alerts" class="space-y-2 mb-4">
+            </div>
+        </div>
+    </div>
 
     <!-- 脚本逻辑 -->
     <script>
@@ -1022,8 +1398,556 @@
         }
         
         // 页面加载完成后初始化
+        // 管理员卡片切换（全局函数，供 onclick 调用）
+        function toggleAdminCard() {
+            const card = document.getElementById('admin-card');
+            const arrow = document.getElementById('admin-arrow');
+            card.classList.toggle('hidden');
+            arrow.style.transform = card.classList.contains('hidden') ? '' : 'rotate(180deg)';
+        }
+
+        // 打开弹窗（全局函数，供 onclick 调用）
+        function openModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            // 关闭管理员卡片
+            const card = document.getElementById('admin-card');
+            card.classList.add('hidden');
+            document.getElementById('admin-arrow').style.transform = '';
+        }
+
+        // 关闭弹窗（全局函数，供 onclick 调用）
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // ========== 监测指标详情面板功能 ==========
+        // 各指标配置数据
+        const indicatorConfig = {
+            '三相电流有效值': { color: '#165DFF', unit: 'A', base: 12.5, variance: 2.5, yMin: 9, yMax: 16, alerts: [
+                { time: '2026-04-22 10:15', level: 'L1', desc: '三相电流不平衡，A相偏高2.3%' },
+                { time: '2026-04-20 08:42', level: 'L2', desc: '电流瞬间波动超出正常范围' }
+            ]},
+            '电压不平衡度': { color: '#165DFF', unit: '%', base: 0.025, variance: 0.02, yMin: 0, yMax: 0.06, alerts: [
+                { time: '2026-04-19 20:10', level: 'L1', desc: '电压不平衡度短暂超过0.04%' }
+            ]},
+            '谐波含量(THD)': { color: '#165DFF', unit: '%', base: 3.0, variance: 1.8, yMin: 0, yMax: 6, alerts: [
+                { time: '2026-04-21 16:30', level: 'L1', desc: '5次谐波含量轻微上升' }
+            ]},
+            '壳体加速度': { color: '#00B42A', unit: 'm/s²', base: 2.0, variance: 1.8, yMin: 0, yMax: 6, alerts: [
+                { time: '2026-04-22 09:10', level: 'L2', desc: '壳体振动加速度异常升高' },
+                { time: '2026-04-20 14:55', level: 'L1', desc: '负载切换期间振动短暂增大' }
+            ]},
+            '特征频率': { color: '#00B42A', unit: 'Hz', base: 100, variance: 6, yMin: 90, yMax: 110, alerts: []},
+            '绕组温度': { color: '#FF7D00', unit: '℃', base: 58, variance: 18, yMin: 35, yMax: 85, alerts: [
+                { time: '2026-04-22 14:20', level: 'L2', desc: '绕组温度异常升高，接近预警阈值' },
+                { time: '2026-04-21 11:05', level: 'L1', desc: '绕组温度上升速率偏高' }
+            ]},
+            '温升速率': { color: '#FF7D00', unit: '℃/min', base: 0.3, variance: 0.5, yMin: 0, yMax: 1.2, alerts: [
+                { time: '2026-04-22 14:18', level: 'L1', desc: '温升速率短暂超过0.8℃/min' }
+            ]},
+            '视在放电量': { color: '#722ED1', unit: 'pC', base: 28, variance: 20, yMin: 0, yMax: 60, alerts: [
+                { time: '2026-04-19 22:30', level: 'L3', desc: '局部放电量超标，建议立即检修' }
+            ]},
+            '放电频次': { color: '#722ED1', unit: '次/分钟', base: 3, variance: 5, yMin: 0, yMax: 12, alerts: []},
+            '声压级': { color: '#F53F3F', unit: 'dB', base: 58, variance: 10, yMin: 45, yMax: 75, alerts: [
+                { time: '2026-04-20 03:15', level: 'L1', desc: '夜间声压级轻微升高' }
+            ]}
+        };
+
+        let detailChart = null;
+        let currentIndicator = '';
+
+        // 搜索监测指标（模糊匹配 + 高亮）
+        function searchPhysicsData(query) {
+            const rows = document.querySelectorAll('.physics-row');
+            query = query.trim().toLowerCase();
+            rows.forEach(function(row) {
+                if (!query) {
+                    row.style.opacity = '1';
+                    row.style.background = '';
+                    return;
+                }
+                const text = (row.dataset.type + ' ' + row.dataset.indicator).toLowerCase();
+                if (text.indexOf(query) !== -1) {
+                    row.style.opacity = '1';
+                    row.style.background = 'rgba(22, 93, 255, 0.08)';
+                } else {
+                    row.style.opacity = '0.3';
+                    row.style.background = '';
+                }
+            });
+        }
+
+        // 打开详情侧拉面板
+        function openDetailPanel(row) {
+            var indicator = row.dataset.indicator;
+            var type = row.dataset.type;
+            var value = row.dataset.value;
+            var unit = row.dataset.unit;
+            var range = row.dataset.range;
+            currentIndicator = indicator;
+
+            document.getElementById('detail-indicator-name').textContent = indicator;
+            document.getElementById('detail-indicator-type').textContent = type;
+            document.getElementById('detail-current-value').textContent = value + ' ' + unit;
+            document.getElementById('detail-range').textContent = range + ' ' + unit;
+
+            // 显示面板
+            document.getElementById('detail-panel-overlay').classList.remove('hidden');
+            // 触发动画（需要 requestAnimationFrame 保证 transition 生效）
+            requestAnimationFrame(function() {
+                requestAnimationFrame(function() {
+                    document.getElementById('detail-panel').style.transform = 'translateX(0)';
+                });
+            });
+
+            // 重置时间标签为1小时
+            document.querySelectorAll('.detail-time-tab').forEach(function(tab) {
+                if (tab.dataset.range === '1h') {
+                    tab.className = 'detail-time-tab px-4 py-1.5 text-xs font-medium rounded-full bg-gradient-primary text-white shadow-btn';
+                } else {
+                    tab.className = 'detail-time-tab px-4 py-1.5 text-xs font-medium rounded-full bg-light text-info hover:bg-gray-200 btn-transition';
+                }
+            });
+
+            renderDetailChart('1h');
+            renderDetailAlerts();
+        }
+
+        // 关闭详情面板
+        function closeDetailPanel() {
+            document.getElementById('detail-panel').style.transform = 'translateX(100%)';
+            setTimeout(function() {
+                document.getElementById('detail-panel-overlay').classList.add('hidden');
+            }, 350);
+            if (detailChart) {
+                detailChart.destroy();
+                detailChart = null;
+            }
+        }
+
+        // 切换时间范围
+        function switchDetailTimeRange(range) {
+            document.querySelectorAll('.detail-time-tab').forEach(function(tab) {
+                if (tab.dataset.range === range) {
+                    tab.className = 'detail-time-tab px-4 py-1.5 text-xs font-medium rounded-full bg-gradient-primary text-white shadow-btn';
+                } else {
+                    tab.className = 'detail-time-tab px-4 py-1.5 text-xs font-medium rounded-full bg-light text-info hover:bg-gray-200 btn-transition';
+                }
+            });
+            renderDetailChart(range);
+        }
+
+        // 渲染详情趋势图
+        function renderDetailChart(range) {
+            var cfg = indicatorConfig[currentIndicator];
+            if (!cfg) return;
+
+            var count = range === '1h' ? 60 : 24;
+            var now = new Date();
+            var labels = [];
+            var data = [];
+
+            if (range === '1h') {
+                for (var i = count - 1; i >= 0; i--) {
+                    var m = new Date(now.getTime() - i * 60000);
+                    labels.push(String(m.getHours()).padStart(2,'0') + ':' + String(m.getMinutes()).padStart(2,'0'));
+                    data.push(cfg.base + (Math.random() - 0.5) * cfg.variance);
+                }
+            } else {
+                for (var i = count - 1; i >= 0; i--) {
+                    var h = new Date(now.getTime() - i * 3600000);
+                    labels.push(String(h.getHours()).padStart(2,'0') + ':00');
+                    data.push(cfg.base + (Math.random() - 0.5) * cfg.variance);
+                }
+            }
+
+            // 统计值
+            var max = Math.max.apply(null, data);
+            var min = Math.min.apply(null, data);
+            var avg = data.reduce(function(a, b) { return a + b; }, 0) / data.length;
+            document.getElementById('stat-max').textContent = max.toFixed(2) + ' ' + cfg.unit;
+            document.getElementById('stat-min').textContent = min.toFixed(2) + ' ' + cfg.unit;
+            document.getElementById('stat-avg').textContent = avg.toFixed(2) + ' ' + cfg.unit;
+
+            if (detailChart) detailChart.destroy();
+
+            var ctx = document.getElementById('detail-chart').getContext('2d');
+            var gradient = ctx.createLinearGradient(0, 0, 0, 220);
+            gradient.addColorStop(0, cfg.color + '33');
+            gradient.addColorStop(1, cfg.color + '05');
+
+            detailChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: currentIndicator + ' (' + cfg.unit + ')',
+                        data: data,
+                        borderColor: cfg.color,
+                        backgroundColor: gradient,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: range === '1h' ? 0 : 3,
+                        pointHoverRadius: 5,
+                        pointBorderColor: cfg.color,
+                        pointBackgroundColor: '#fff',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: { duration: 600, easing: 'easeOutQuart' },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#fff',
+                            titleColor: '#1D2129',
+                            bodyColor: '#4E5969',
+                            borderColor: '#E5E6EB',
+                            borderWidth: 1,
+                            padding: 10,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return currentIndicator + ': ' + context.parsed.y.toFixed(2) + ' ' + cfg.unit;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            min: cfg.yMin,
+                            max: cfg.yMax,
+                            title: { display: true, text: cfg.unit, color: '#86909C', font: { size: 11 } },
+                            grid: { color: 'rgba(0,0,0,0.04)' },
+                            ticks: { font: { size: 10 }, color: '#86909C' }
+                        },
+                        x: {
+                            title: { display: true, text: range === '1h' ? '时间 (分钟)' : '时间 (小时)', color: '#86909C', font: { size: 11 } },
+                            grid: { display: false },
+                            ticks: {
+                                font: { size: 10 },
+                                color: '#86909C',
+                                maxTicksLimit: range === '1h' ? 12 : 24
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 渲染关联告警
+        function renderDetailAlerts() {
+            var cfg = indicatorConfig[currentIndicator];
+            var container = document.getElementById('detail-alerts');
+            if (!cfg || !cfg.alerts || cfg.alerts.length === 0) {
+                container.innerHTML = '<div class="text-center py-6 text-info text-sm"><i class="fa fa-check-circle text-success text-2xl mb-2 block"></i>暂无关联告警，该指标运行正常</div>';
+                return;
+            }
+            var levelColors = { 'L1': 'warning', 'L2': 'primary', 'L3': 'danger' };
+            var levelNames = { 'L1': '预警', 'L2': '告警', 'L3': '紧急' };
+            var html = '';
+            cfg.alerts.forEach(function(alert) {
+                var c = levelColors[alert.level] || 'info';
+                var n = levelNames[alert.level] || alert.level;
+                html += '<div class="flex items-start space-x-3 p-3 bg-light rounded-lg border border-border">'
+                    + '<div class="w-7 h-7 rounded-full bg-' + c + '/10 flex items-center justify-center flex-shrink-0 mt-0.5">'
+                    + '<i class="fa fa-exclamation text-' + c + ' text-xs"></i></div>'
+                    + '<div class="flex-1 min-w-0">'
+                    + '<div class="flex items-center gap-2 mb-1">'
+                    + '<span class="text-xs px-1.5 py-0.5 rounded bg-' + c + '/10 text-' + c + ' font-medium">' + n + '</span>'
+                    + '<span class="text-xs text-info"><i class="fa fa-clock-o mr-1"></i>' + alert.time + '</span></div>'
+                    + '<p class="text-sm text-dark">' + alert.desc + '</p>'
+                    + '</div></div>';
+            });
+            container.innerHTML = html;
+        }
+
+        // 切换主趋势图时间范围（实时/1小时/24小时）
+        function switchMainTimeRange(btn, range) {
+            // 切换按钮样式
+            document.querySelectorAll('.time-range-tab').forEach(function(t) {
+                t.classList.remove('bg-primary', 'text-white');
+                t.classList.add('bg-light', 'text-info');
+            });
+            btn.classList.remove('bg-light', 'text-info');
+            btn.classList.add('bg-primary', 'text-white');
+
+            // 获取 chart 实例
+            var canvas = document.getElementById('multi-physics-chart');
+            var chart = Chart.getChart(canvas);
+            if (!chart) return;
+
+            // 判断当前激活的物理场标签
+            var activeTab = document.querySelector('.physics-tab.bg-gradient-primary');
+            var target = activeTab ? activeTab.getAttribute('data-target') : 'electric';
+
+            // 各物理场数据配置
+            var dataCfg = {
+                'electric':    { base: 12.5, variance: 5 },
+                'vibration':   { base: 3,    variance: 4 },
+                'temperature': { base: 55,   variance: 30 },
+                'pd':          { base: 30,   variance: 40 },
+                'audio':       { base: 57.5, variance: 15 }
+            };
+            var cfg = dataCfg[target] || dataCfg['electric'];
+
+            // 根据时间范围生成标签和数据
+            var count, labels, xTitle;
+            var now = new Date();
+
+            if (range === 'realtime') {
+                count = 30;
+                labels = [];
+                for (var i = 0; i < count; i++) {
+                    var t = new Date(now.getTime() - (count - 1 - i) * 60000);
+                    labels.push(String(t.getMinutes()).padStart(2, '0'));
+                }
+                xTitle = '时间 (分钟)';
+            } else if (range === '1h') {
+                count = 60;
+                labels = [];
+                for (var i = 0; i < count; i++) {
+                    var t = new Date(now.getTime() - (count - 1 - i) * 60000);
+                    labels.push(String(t.getHours()).padStart(2, '0') + ':' + String(t.getMinutes()).padStart(2, '0'));
+                }
+                xTitle = '时间 (分钟)';
+            } else {
+                count = 24;
+                labels = [];
+                for (var i = 0; i < count; i++) {
+                    var t = new Date(now.getTime() - (count - 1 - i) * 3600000);
+                    labels.push(String(t.getHours()).padStart(2, '0') + ':00');
+                }
+                xTitle = '时间 (小时)';
+            }
+
+            var data = [];
+            for (var i = 0; i < count; i++) {
+                data.push(cfg.base + (Math.random() - 0.5) * cfg.variance);
+            }
+
+            chart.data.labels = labels;
+            chart.data.datasets[0].data = data;
+            chart.options.scales.x.title.text = xTitle;
+            chart.options.scales.x.ticks.maxTicksLimit = range === '1h' ? 12 : undefined;
+            // 数据点多时隐藏圆点
+            chart.data.datasets[0].pointRadius = count > 30 ? 0 : 4;
+            chart.data.datasets[0].pointHoverRadius = count > 30 ? 4 : 6;
+            chart.update();
+        }
+
+        // 渲染告警历史（从 indicatorConfig 汇总所有告警）
+        function renderAlertHistory() {
+            // 收集所有告警并附带指标信息
+            var allAlerts = [];
+            var levelOrder = { 'L3': 0, 'L2': 1, 'L1': 2 };
+            for (var name in indicatorConfig) {
+                var cfg = indicatorConfig[name];
+                if (cfg.alerts) {
+                    cfg.alerts.forEach(function(a) {
+                        allAlerts.push({
+                            indicator: name,
+                            type: cfg.unit,
+                            color: cfg.color,
+                            time: a.time,
+                            level: a.level,
+                            desc: a.desc
+                        });
+                    });
+                }
+            }
+            // 按时间倒序排列
+            allAlerts.sort(function(a, b) { return b.time.localeCompare(a.time); });
+
+            // L2/L3 标记为未处理，L1 为已处理
+            var unprocessedCount = 0;
+            allAlerts.forEach(function(a) {
+                a.processed = (a.level === 'L1');
+                if (!a.processed) unprocessedCount++;
+            });
+
+            // 更新未处理数
+            document.getElementById('alert-unprocessed-count').innerHTML =
+                '<i class="fa fa-exclamation-triangle mr-1"></i> ' + unprocessedCount + ' 未处理';
+
+            // 渲染列表
+            var container = document.getElementById('alert-list');
+            var levelColors = { 'L1': 'warning', 'L2': 'primary', 'L3': 'danger' };
+            var levelNames = { 'L1': 'L1 预警', 'L2': 'L2 告警', 'L3': 'L3 紧急' };
+            var levelBorder = { 'L1': 'border-warning/20', 'L2': 'border-primary/20', 'L3': 'border-danger/20' };
+            var levelGradient = { 'L1': 'bg-gradient-warning', 'L2': 'bg-gradient-primary', 'L3': 'bg-gradient-danger' };
+
+            var html = '';
+            allAlerts.forEach(function(a) {
+                var c = levelColors[a.level] || 'info';
+                var borderCls = levelBorder[a.level] || '';
+                var gradientCls = levelGradient[a.level] || 'bg-' + c;
+                html += '<div class="alert-history-item bg-light/50 rounded-xl p-4 border ' + borderCls + ' hover:shadow-md btn-transition animate-fade-in" data-indicator="' + a.indicator + '" data-desc="' + a.desc + '">'
+                    + '<div class="flex justify-between items-start mb-2">'
+                    + '<span class="text-xs font-medium px-2 py-1 ' + gradientCls + ' text-white rounded-full">' + levelNames[a.level] + '</span>'
+                    + '<span class="text-xs text-info">' + a.time + '</span>'
+                    + '</div>'
+                    + '<h3 class="text-sm font-bold mb-1.5 text-dark">' + a.desc + '</h3>'
+                    + '<div class="flex justify-between items-center">'
+                    + '<span class="text-xs text-info"><i class="fa fa-tag mr-1"></i>' + a.indicator + '</span>';
+                if (a.processed) {
+                    html += '<span class="text-xs px-2 py-0.5 bg-success/10 text-success rounded"><i class="fa fa-check mr-1"></i>已处理</span>';
+                } else {
+                    html += '<span class="text-xs px-2 py-0.5 bg-danger/10 text-danger rounded"><i class="fa fa-clock-o mr-1"></i>待处理</span>';
+                }
+                html += '</div></div>';
+            });
+            container.innerHTML = html;
+
+            // 存储备份用于搜索
+            window._alertHistoryItems = allAlerts;
+        }
+
+        // 搜索告警
+        function searchAlerts(query) {
+            var items = document.querySelectorAll('.alert-history-item');
+            query = query.trim().toLowerCase();
+            items.forEach(function(item) {
+                if (!query) {
+                    item.style.display = '';
+                    item.style.opacity = '1';
+                    return;
+                }
+                var text = (item.dataset.indicator + ' ' + item.dataset.desc).toLowerCase();
+                if (text.indexOf(query) !== -1) {
+                    item.style.display = '';
+                    item.style.opacity = '1';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // ========== 全部告警弹窗功能 ==========
+        var _currentAlertLevelFilter = 'all';
+
+        function openAllAlertsModal() {
+            _currentAlertLevelFilter = 'all';
+            // 重置筛选按钮
+            document.querySelectorAll('.all-alerts-level-tab').forEach(function(t) {
+                if (t.dataset.level === 'all') {
+                    t.classList.remove('bg-light', 'text-info');
+                    t.classList.add('bg-primary', 'text-white');
+                } else {
+                    t.classList.remove('bg-primary', 'text-white');
+                    t.classList.add('bg-light', 'text-info');
+                }
+            });
+            // 清空搜索
+            var searchInput = document.getElementById('all-alerts-search');
+            if (searchInput) searchInput.value = '';
+            // 渲染并打开
+            renderAllAlertsList();
+            openModal('all-alerts-modal');
+        }
+
+        function switchAlertLevel(btn) {
+            _currentAlertLevelFilter = btn.dataset.level;
+            document.querySelectorAll('.all-alerts-level-tab').forEach(function(t) {
+                t.classList.remove('bg-primary', 'text-white');
+                t.classList.add('bg-light', 'text-info');
+            });
+            btn.classList.remove('bg-light', 'text-info');
+            btn.classList.add('bg-primary', 'text-white');
+            renderAllAlertsList();
+        }
+
+        function filterAllAlerts() {
+            renderAllAlertsList();
+        }
+
+        function renderAllAlertsList() {
+            // 收集所有告警
+            var allAlerts = [];
+            for (var name in indicatorConfig) {
+                var cfg = indicatorConfig[name];
+                if (cfg.alerts) {
+                    cfg.alerts.forEach(function(a) {
+                        allAlerts.push({ indicator: name, unit: cfg.unit, time: a.time, level: a.level, desc: a.desc, processed: (a.level === 'L1') });
+                    });
+                }
+            }
+            allAlerts.sort(function(a, b) { return b.time.localeCompare(a.time); });
+
+            // 按等级筛选
+            if (_currentAlertLevelFilter !== 'all') {
+                allAlerts = allAlerts.filter(function(a) { return a.level === _currentAlertLevelFilter; });
+            }
+
+            // 按搜索词筛选
+            var query = (document.getElementById('all-alerts-search').value || '').trim().toLowerCase();
+            if (query) {
+                allAlerts = allAlerts.filter(function(a) {
+                    return (a.indicator + ' ' + a.desc + ' ' + a.level).toLowerCase().indexOf(query) !== -1;
+                });
+            }
+
+            // 统计
+            var unprocessed = allAlerts.filter(function(a) { return !a.processed; }).length;
+            document.getElementById('all-alerts-count').textContent = allAlerts.length + ' 条' + (unprocessed > 0 ? '，' + unprocessed + ' 条待处理' : '');
+
+            // 渲染
+            var container = document.getElementById('all-alerts-list');
+            var levelColors = { 'L1': 'warning', 'L2': 'primary', 'L3': 'danger' };
+            var levelNames = { 'L1': 'L1 预警', 'L2': 'L2 告警', 'L3': 'L3 紧急' };
+            var levelBorder = { 'L1': 'border-warning/20', 'L2': 'border-primary/20', 'L3': 'border-danger/20' };
+            var levelGradient = { 'L1': 'bg-gradient-warning', 'L2': 'bg-gradient-primary', 'L3': 'bg-gradient-danger' };
+
+            if (allAlerts.length === 0) {
+                container.innerHTML = '<div class="text-center py-12"><div class="w-14 h-14 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-3"><i class="fa fa-check-circle text-success text-2xl"></i></div><p class="text-info text-sm">没有匹配的告警记录</p></div>';
+                return;
+            }
+
+            var html = '';
+            allAlerts.forEach(function(a) {
+                var c = levelColors[a.level] || 'info';
+                var bCls = levelBorder[a.level] || '';
+                var gCls = levelGradient[a.level] || '';
+                html += '<div class="bg-light/50 rounded-xl p-4 border ' + bCls + ' hover:shadow-md btn-transition">'
+                    + '<div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-2">'
+                    + '<div class="flex items-center gap-2">'
+                    + '<span class="text-xs font-medium px-2 py-1 ' + gCls + ' text-white rounded-full">' + levelNames[a.level] + '</span>'
+                    + '<span class="text-xs font-medium text-dark">' + a.indicator + '</span>'
+                    + '</div>'
+                    + '<span class="text-xs text-info"><i class="fa fa-clock-o mr-1"></i>' + a.time + '</span>'
+                    + '</div>'
+                    + '<p class="text-sm text-dark mb-2">' + a.desc + '</p>'
+                    + '<div class="flex justify-between items-center">'
+                    + '<span class="text-xs text-info">单位: ' + a.unit + '</span>';
+                if (a.processed) {
+                    html += '<span class="text-xs px-2 py-0.5 bg-success/10 text-success rounded"><i class="fa fa-check mr-1"></i>已处理</span>';
+                } else {
+                    html += '<span class="text-xs px-2 py-0.5 bg-danger/10 text-danger rounded"><i class="fa fa-clock-o mr-1"></i>待处理</span>';
+                }
+                html += '</div></div>';
+            });
+            container.innerHTML = html;
+        }
+
         window.addEventListener('DOMContentLoaded', function() {
-            // 更新当前时间
+        // 点击页面其他区域关闭管理员卡片
+        document.addEventListener('click', function(e) {
+            const wrapper = document.getElementById('admin-wrapper');
+            const card = document.getElementById('admin-card');
+            if (wrapper && !wrapper.contains(e.target) && !card.classList.contains('hidden')) {
+                card.classList.add('hidden');
+                document.getElementById('admin-arrow').style.transform = '';
+            }
+        });
+
+        // 更新当前时间
             updateCurrentTime();
             setInterval(updateCurrentTime, 1000);
             
@@ -1033,6 +1957,9 @@
             
             // 模拟数据更新
             simulateDataUpdate(gaugeChart, multiChart);
+
+            // 渲染告警历史
+            renderAlertHistory();
             
             // 添加页面滚动动画
             document.querySelectorAll('a[href^="#"]').forEach(anchor => {
